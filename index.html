@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Опора — личные финансы</title>
+    <meta name="description" content="Личный финансовый трекер: счета, конверты, налоговый резерв и статистика. Данные хранятся только на вашем устройстве." />
+    <meta name="theme-color" content="#05070a" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Опора" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="preload" href="fonts/manrope-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="fonts/manrope-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+    <link rel="stylesheet" href="css/app.css" />
+    <!-- Telegram Mini App SDK: в обычном браузере просто не находит Telegram и молчит -->
+    <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <noscript>
+      <p style="padding: 24px; font-family: system-ui, sans-serif; color: #fff">
+        Приложению нужен JavaScript — включите его в настройках браузера.
+      </p>
+    </noscript>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
