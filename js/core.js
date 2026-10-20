@@ -9,7 +9,7 @@
 export const SCHEMA_VERSION = 2;
 
 /** Метка сборки: видна в настройках, чтобы точно знать, какая версия открыта. */
-export const BUILD = '2026-10-20 · 16:12';
+export const BUILD = '2026-10-20 · 17:14';
 
 export const TYPE = {
   INCOME: 'income',
