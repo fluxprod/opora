@@ -335,8 +335,8 @@ input, select, textarea { font: inherit; color: inherit; }
   /* никакой заливки: только размытие того, что проезжает под капсулой,
      плюс лёгкое затемнение фильтром, чтобы подписи читались */
   background: transparent;
-  -webkit-backdrop-filter: blur(22px) saturate(140%) brightness(0.62);
-  backdrop-filter: blur(22px) saturate(140%) brightness(0.62);
+  -webkit-backdrop-filter: blur(26px) saturate(130%) brightness(0.6);
+  backdrop-filter: blur(26px) saturate(130%) brightness(0.6);
   box-shadow: none;
 }
 
@@ -395,8 +395,8 @@ input, select, textarea { font: inherit; color: inherit; }
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   background: transparent;
-  -webkit-backdrop-filter: blur(22px) saturate(140%) brightness(0.62);
-  backdrop-filter: blur(22px) saturate(140%) brightness(0.62);
+  -webkit-backdrop-filter: blur(26px) saturate(130%) brightness(0.6);
+  backdrop-filter: blur(26px) saturate(130%) brightness(0.6);
   box-shadow: none;
   transition: transform 0.16s ease;
 }
