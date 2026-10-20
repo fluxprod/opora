@@ -1,10 +1,12 @@
 /** components.js — повторно используемые части интерфейса. */
 import { TYPE, TYPE_LABELS } from './core.js';
-import { money, icon, escapeHtml, fmtDate, categoryIcon, ACCOUNT_ICONS, pct } from './ui.js';
+import { money, icon, escapeHtml, fmtDate, categoryIcon, ACCOUNT_ICONS, pct, currencySymbol } from './ui.js';
 
 export function heroAmount(cents) {
   const full = money(cents, { bare: true });
-  const sym = money(0).split(' ').pop();
+  const sym = currencySymbol();
+  // у доллара знак перед числом, у Br и ₽ — после
+  if (sym === '$') return `<span class="hero__cur">${escapeHtml(sym)}</span>${escapeHtml(full)}`;
   return `${escapeHtml(full)}<span class="hero__cur">${escapeHtml(sym)}</span>`;
 }
 
