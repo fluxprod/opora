@@ -174,21 +174,6 @@ input, select, textarea { font: inherit; color: inherit; }
 .shell { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
 .main { flex: 1 1 auto; min-width: 0; min-height: 0; display: flex; flex-direction: column; position: relative; }
 
-/* Мягкий край скроллера: контент уходит под нижнюю кромку не обрезком строки.
-   Слой обычный (absolute внутри .main), а не fixed: fixed-слои на iOS —
-   источник чёрного кадра при подмене содержимого. */
-.main::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 22px;
-  z-index: 25;
-  pointer-events: none;
-  background: linear-gradient(180deg, rgba(5, 7, 10, 0), rgba(5, 7, 10, 0.92));
-}
-
 .brand {
   display: flex;
   align-items: center;
@@ -287,9 +272,9 @@ input, select, textarea { font: inherit; color: inherit; }
      отдельный композитный слой прокрутки, а он на iOS умеет показывать пустоту
      на кадр — ровно тот дефект, который мы убираем (моментум и так по умолчанию) */
   scrollbar-gutter: stable;
-  /* док больше не лежит поверх контента, поэтому отступ снизу обычный:
-     высокий padding под fixed-панель был нужен только старой оболочке */
-  padding: 6px 18px 18px;
+  /* панель теперь наезжает на скроллер (стекло должно что-то размывать),
+     поэтому снизу запас, чтобы последняя строка не жила под капсулой */
+  padding: 6px 18px 52px;
 }
 .view__inner { display: grid; gap: 18px; max-width: 1120px; margin: 0 auto; width: 100%; }
 
@@ -312,8 +297,9 @@ input, select, textarea { font: inherit; color: inherit; }
   width: 100%;
   max-width: 484px; /* 460 контента + 2 × 12 отступа */
   /* отступ от низа экрана — внешний (margin), как раньше у fixed-панели:
-     зазор остаётся 8px + safe-area и виден в замерах */
-  margin: 8px auto calc(8px + var(--dock-safe, var(--safe-b)));
+     зазор остаётся 8px + safe-area и виден в замерах. Сверху отрицательный
+     отступ: капсула наезжает на контент, и под стеклом есть что размывать */
+  margin: -26px auto calc(8px + var(--dock-safe, var(--safe-b)));
   padding: 0 12px;
   display: flex;
   align-items: center;
@@ -330,11 +316,13 @@ input, select, textarea { font: inherit; color: inherit; }
   align-items: center;
   padding: 0 4px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(20, 24, 32, 0.72);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-  backdrop-filter: blur(20px) saturate(150%);
-  box-shadow: 0 10px 26px -16px rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  /* стекло: лёгкое затемнение + размытие того, что проезжает под капсулой.
+     Никакой плотной заливки — фон должен читаться насквозь. */
+  background: rgba(16, 21, 30, 0.42);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 8px 24px -18px rgba(0, 0, 0, 0.7);
 }
 
 /* если размытие недоступно — плотный фон, чтобы текст под панелью не мешал */
@@ -391,10 +379,10 @@ input, select, textarea { font: inherit; color: inherit; }
   color: var(--ink);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  background: rgba(20, 24, 32, 0.72);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-  backdrop-filter: blur(20px) saturate(150%);
-  box-shadow: 0 10px 26px -16px rgba(0, 0, 0, 0.85);
+  background: rgba(16, 21, 30, 0.42);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 8px 24px -18px rgba(0, 0, 0, 0.7);
   transition: transform 0.16s ease;
 }
 .dock__add .ico { width: 25px; height: 25px; }
@@ -1864,15 +1852,9 @@ select.input {
     -webkit-backdrop-filter: none;
     background: rgba(3, 5, 8, 0.84);
   }
-  /* Под нижней панелью больше нет контента (док в потоке), размывать нечего:
-     blur по гладкому фону неотличим от его отсутствия, а композитный слой
-     с backdrop-filter на iOS — лишний кандидат в «чёрный кадр» при подмене
-     содержимого. Капсула остаётся полупрозрачной, вид не меняется. */
-  .tabbar,
-  .dock__add {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
+  /* стекло у нижней панели оставлено: капсула наезжает на контент, и размытие
+     здесь — единственный слой, который читается как «панель поверх», а не как
+     плотная плашка. Оно статичное (не fixed), поэтому чёрных кадров не даёт. */
 }
 
 @media (prefers-reduced-motion: reduce) {

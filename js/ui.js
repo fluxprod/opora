@@ -138,20 +138,23 @@ const P = {
   repeat: '<path d="M6 8h11l-3-3M18 16H7l3 3"/>',
   dots: '<circle cx="6" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="18" cy="12" r="1.4"/>',
 
-  /* залитые варианты для выбранной вкладки — в духе SF Symbols */
+  /* залитые варианты для выбранной вкладки — тот же силуэт, что у контура,
+     только залитый (даже геометрия совпадает: контур и заливка не «прыгают») */
   homeFill:
-    '<path d="M11.1 3.6a1.4 1.4 0 0 1 1.8 0l7.6 6.3c.3.2.5.6.5 1v7.6a2 2 0 0 1-2 2h-4.4v-5.2h-4.2v5.2H5a2 2 0 0 1-2-2v-7.6c0-.4.2-.8.5-1z" fill="currentColor" stroke="none"/>',
+    '<path fill-rule="evenodd" d="M4 10.5 12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z ' +
+    'M9.5 20.5v-6h5v6z" fill="currentColor" stroke="none"/>',
   walletFill:
-    '<path d="M4.5 6h15A2.5 2.5 0 0 1 22 8.5v1H2v-1A2.5 2.5 0 0 1 4.5 6z" fill="currentColor" stroke="none"/>' +
-    '<path d="M2 11h20v4.5A2.5 2.5 0 0 1 19.5 18h-15A2.5 2.5 0 0 1 2 15.5z" fill="currentColor" stroke="none"/>',
+    '<path fill-rule="evenodd" d="M3.5 8.5A2.5 2.5 0 0 1 6 6h12.5A1.5 1.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19H6a2.5 2.5 0 0 1-2.5-2.5z ' +
+    'M3.5 9.1h10.2v.9H3.5z" fill="currentColor" stroke="none"/>',
   chartFill:
-    '<rect x="4" y="11.5" width="4.2" height="8.5" rx="1.5" fill="currentColor" stroke="none"/>' +
-    '<rect x="9.9" y="6" width="4.2" height="14" rx="1.5" fill="currentColor" stroke="none"/>' +
-    '<rect x="15.8" y="13.5" width="4.2" height="6.5" rx="1.5" fill="currentColor" stroke="none"/>',
+    '<path d="M4 4v16h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+    '<rect x="7" y="11.6" width="3.6" height="8.4" rx="1.4" fill="currentColor" stroke="none"/>' +
+    '<rect x="12.6" y="7.4" width="3.6" height="12.6" rx="1.4" fill="currentColor" stroke="none"/>' +
+    '<rect x="18.2" y="13.6" width="3.6" height="6.4" rx="1.4" fill="currentColor" stroke="none"/>',
   dotsFill:
-    '<circle cx="5.5" cy="12" r="1.9" fill="currentColor" stroke="none"/>' +
-    '<circle cx="12" cy="12" r="1.9" fill="currentColor" stroke="none"/>' +
-    '<circle cx="18.5" cy="12" r="1.9" fill="currentColor" stroke="none"/>',
+    '<circle cx="6" cy="12" r="2" fill="currentColor" stroke="none"/>' +
+    '<circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/>' +
+    '<circle cx="18" cy="12" r="2" fill="currentColor" stroke="none"/>',
   briefcase: '<rect x="3.5" y="7.5" width="17" height="12" rx="2.5"/><path d="M9 7.5V5.5h6v2"/><path d="M3.5 12.5h17"/>',
   building: '<rect x="4.5" y="3.5" width="15" height="17" rx="2"/><path d="M8.5 7.5h2M13.5 7.5h2M8.5 11.5h2M13.5 11.5h2M10 20.5v-4h4v4"/>',
   lock: '<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>',
