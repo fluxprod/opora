@@ -95,6 +95,17 @@
 
 * { box-sizing: border-box; }
 
+/* Жесты: масштабирование и двойной тап выключены (как в нативном приложении),
+   прокрутка остаётся только вертикальной внутри .view */
+button,
+a,
+.tab,
+.dock__add,
+.chip,
+.seg__item {
+  touch-action: manipulation;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   /* Документ не прокручивается вообще: единственный скроллер — .view внутри
@@ -112,6 +123,10 @@ body {
   height: 100vh;
   height: var(--app-h, 100dvh);
   overflow: hidden;
+  /* двойной тап по экрану не должен приближать приложение: touch-action
+     отключает double-tap zoom, виджет остаётся «как настоящее приложение» */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   font-family: var(--font);
   font-size: var(--fs-base);
   line-height: 1.45;
@@ -316,13 +331,13 @@ input, select, textarea { font: inherit; color: inherit; }
   align-items: center;
   padding: 0 4px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  /* стекло: лёгкое затемнение + размытие того, что проезжает под капсулой.
-     Никакой плотной заливки — фон должен читаться насквозь. */
-  background: rgba(16, 21, 30, 0.42);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  backdrop-filter: blur(18px) saturate(140%);
-  box-shadow: 0 8px 24px -18px rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  /* никакой заливки: только размытие того, что проезжает под капсулой,
+     плюс лёгкое затемнение фильтром, чтобы подписи читались */
+  background: transparent;
+  -webkit-backdrop-filter: blur(22px) saturate(140%) brightness(0.62);
+  backdrop-filter: blur(22px) saturate(140%) brightness(0.62);
+  box-shadow: none;
 }
 
 /* если размытие недоступно — плотный фон, чтобы текст под панелью не мешал */
@@ -379,10 +394,10 @@ input, select, textarea { font: inherit; color: inherit; }
   color: var(--ink);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  background: rgba(16, 21, 30, 0.42);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  backdrop-filter: blur(18px) saturate(140%);
-  box-shadow: 0 8px 24px -18px rgba(0, 0, 0, 0.7);
+  background: transparent;
+  -webkit-backdrop-filter: blur(22px) saturate(140%) brightness(0.62);
+  backdrop-filter: blur(22px) saturate(140%) brightness(0.62);
+  box-shadow: none;
   transition: transform 0.16s ease;
 }
 .dock__add .ico { width: 25px; height: 25px; }

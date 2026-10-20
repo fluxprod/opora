@@ -30,9 +30,15 @@ function applyViewport() {
 
   const safe = w.safeAreaInset || { top: 0, bottom: 0, left: 0, right: 0 };
   const content = w.contentSafeAreaInset || { top: 0, bottom: 0, left: 0, right: 0 };
-  root.style.setProperty('--top-safe', `${Math.round((safe.top || 0) + (content.top || 0))}px`);
+  const fullscreen = Boolean(w.isFullscreen);
+  // В полноэкранном режиме сверху плавают кнопки «свернуть» и «закрыть»
+  // самого Телеграма: держим под них минимум 58 px, чтобы они не садились
+  // на заголовок и на кнопки приложения.
+  const topInset = Math.max((safe.top || 0) + (content.top || 0), fullscreen ? 58 : 0);
+  root.style.setProperty('--top-safe', `${Math.round(topInset)}px`);
   root.style.setProperty('--dock-safe', `${Math.round(safe.bottom || 0)}px`);
   root.style.setProperty('--side-safe', `${Math.round(Math.max(safe.left || 0, safe.right || 0))}px`);
+  document.body.classList.toggle('is-fullscreen', fullscreen);
 }
 
 /** Кнопка «назад» в шапке Телеграма повторяет поведение кнопки в приложении. */
@@ -65,6 +71,9 @@ export function initTelegram({ onBack } = {}) {
   try {
     w.ready();
     w.expand();
+    // полноэкранный режим (Bot API 8.0+): приложение занимает весь экран,
+    // сверху остаются только системные кнопки «свернуть/закрыть» Телеграма
+    if (typeof w.requestFullscreen === 'function' && !w.isFullscreen) w.requestFullscreen();
     if (w.disableVerticalSwipes) w.disableVerticalSwipes();
     if (w.setHeaderColor) w.setHeaderColor('#05070a');
     if (w.setBackgroundColor) w.setBackgroundColor('#05070a');
@@ -77,6 +86,8 @@ export function initTelegram({ onBack } = {}) {
   w.onEvent('viewportChanged', applyViewport);
   w.onEvent('safeAreaChanged', applyViewport);
   w.onEvent('contentSafeAreaChanged', applyViewport);
+  w.onEvent('fullscreenChanged', applyViewport);
+  w.onEvent('fullscreenFailed', applyViewport);
   w.onEvent('themeChanged', () => {
     if (w.setHeaderColor) w.setHeaderColor('#05070a');
   });
