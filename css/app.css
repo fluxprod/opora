@@ -332,12 +332,22 @@ input, select, textarea { font: inherit; color: inherit; }
   padding: 0 4px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.09);
-  /* никакой заливки: только размытие того, что проезжает под капсулой,
-     плюс лёгкое затемнение фильтром, чтобы подписи читались */
+  /* никакой заливки: размытие того, что проезжает под капсулой, и плавное
+     затемнение отдельным градиентным слоем — без резкой плашки */
   background: transparent;
-  -webkit-backdrop-filter: blur(26px) saturate(130%) brightness(0.6);
-  backdrop-filter: blur(26px) saturate(130%) brightness(0.6);
+  -webkit-backdrop-filter: blur(26px) saturate(130%);
+  backdrop-filter: blur(26px) saturate(130%);
   box-shadow: none;
+}
+
+.tabbar::before,
+.dock__add::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(5, 7, 10, 0.03), rgba(5, 7, 10, 0.32));
 }
 
 /* если размытие недоступно — плотный фон, чтобы текст под панелью не мешал */
@@ -384,6 +394,7 @@ input, select, textarea { font: inherit; color: inherit; }
 
 /* кнопка действия — отдельный круг из того же материала, как поиск в iOS */
 .dock__add {
+  position: relative;
   flex: 0 0 auto;
   width: 64px;
   height: 64px;
@@ -395,8 +406,8 @@ input, select, textarea { font: inherit; color: inherit; }
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   background: transparent;
-  -webkit-backdrop-filter: blur(26px) saturate(130%) brightness(0.6);
-  backdrop-filter: blur(26px) saturate(130%) brightness(0.6);
+  -webkit-backdrop-filter: blur(26px) saturate(130%);
+  backdrop-filter: blur(26px) saturate(130%);
   box-shadow: none;
   transition: transform 0.16s ease;
 }
@@ -1501,6 +1512,9 @@ select.input {
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  /* в полноэкранном Телеграме сверху плавают его кнопки: шторка и диалог
+     не должны под них заезжать */
+  padding-top: var(--top-safe, env(safe-area-inset-top));
 }
 .layer__backdrop {
   position: absolute;
@@ -1517,7 +1531,7 @@ select.input {
   position: relative;
   width: 100%;
   max-width: 560px;
-  max-height: 93dvh;
+  max-height: calc(93dvh - var(--top-safe, 0px));
   display: flex;
   flex-direction: column;
   border-radius: 24px 24px 0 0;
@@ -1793,7 +1807,7 @@ select.input {
   .tax-grid { grid-template-columns: repeat(4, 1fr); }
   .acc-detail__balance { font-size: var(--fs-3xl); }
   .view { padding-left: 24px; padding-right: 24px; }
-  .layer { align-items: center; padding: 24px; }
+  .layer { align-items: center; padding: max(24px, var(--top-safe, 24px)) 24px 24px; }
   .sheet {
     border-radius: 22px;
     border-bottom: 1px solid var(--line-2);
