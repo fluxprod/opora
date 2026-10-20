@@ -289,7 +289,7 @@ input, select, textarea { font: inherit; color: inherit; }
   scrollbar-gutter: stable;
   /* панель теперь наезжает на скроллер (стекло должно что-то размывать),
      поэтому снизу запас, чтобы последняя строка не жила под капсулой */
-  padding: 6px 18px 52px;
+  padding: 6px 18px 84px;
 }
 .view__inner { display: grid; gap: 18px; max-width: 1120px; margin: 0 auto; width: 100%; }
 
@@ -335,8 +335,8 @@ input, select, textarea { font: inherit; color: inherit; }
   /* никакой заливки: размытие того, что проезжает под капсулой, и плавное
      затемнение отдельным градиентным слоем — без резкой плашки */
   background: transparent;
-  -webkit-backdrop-filter: blur(26px) saturate(130%);
-  backdrop-filter: blur(26px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(115%);
+  backdrop-filter: blur(18px) saturate(115%);
   box-shadow: none;
 }
 
@@ -347,7 +347,7 @@ input, select, textarea { font: inherit; color: inherit; }
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(5, 7, 10, 0.03), rgba(5, 7, 10, 0.32));
+  background: linear-gradient(180deg, rgba(5, 7, 10, 0.02), rgba(5, 7, 10, 0.12) 55%, rgba(5, 7, 10, 0.28));
 }
 
 /* если размытие недоступно — плотный фон, чтобы текст под панелью не мешал */
@@ -406,8 +406,8 @@ input, select, textarea { font: inherit; color: inherit; }
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   background: transparent;
-  -webkit-backdrop-filter: blur(26px) saturate(130%);
-  backdrop-filter: blur(26px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(115%);
+  backdrop-filter: blur(18px) saturate(115%);
   box-shadow: none;
   transition: transform 0.16s ease;
 }
@@ -2061,4 +2061,36 @@ body { font-weight: 460; }
 }
 
 
+/* ==========================================================================
+   Микро-движение: короткое сжатие при нажатии. Меняются только transform и
+   opacity — раскладка не сдвигается. prefers-reduced-motion отключает это
+   общим правилом выше.
+   ========================================================================== */
 
+.btn,
+.icon-btn,
+.chip,
+.quick-act,
+.settings-row,
+.link-btn,
+.more-item,
+.seg__item,
+.swatch {
+  transition: transform 0.12s var(--ease-out), opacity 0.12s ease,
+    background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+.btn:active,
+.icon-btn:active,
+.chip:active,
+.quick-act:active,
+.settings-row:active,
+.more-item:active,
+.seg__item:active {
+  transform: scale(0.97);
+  opacity: 0.92;
+}
+
+.link-btn:active {
+  opacity: 0.7;
+}

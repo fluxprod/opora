@@ -1,13 +1,15 @@
 /** ui.js — форматирование, иконки, тосты, шторки, диалоги. */
 
-const SYMBOLS = { RUB: '₽', USD: '$', EUR: '€', KZT: '₸', BYN: 'Br', GEL: '₾', UAH: '₴', TRY: '₺', AMD: '֏' };
-let CURRENCY = 'RUB';
+const SYMBOLS = { BYN: 'Br', RUB: '₽', USD: '$' };
+// у доллара знак ставится перед числом, у рубля и белорусского — после
+const PREFIX = new Set(['USD']);
+let CURRENCY = 'BYN';
 let LOCALE = 'ru-RU';
 
 export function setCurrency(code) {
-  CURRENCY = SYMBOLS[code] ? code : 'RUB';
+  CURRENCY = SYMBOLS[code] ? code : 'BYN';
 }
-export const currencySymbol = () => SYMBOLS[CURRENCY] || '₽';
+export const currencySymbol = () => SYMBOLS[CURRENCY] || 'Br';
 
 const nf = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2, minimumFractionDigits: 0 });
 const nfSigned = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2, minimumFractionDigits: 0, signDisplay: 'exceptZero' });
@@ -25,7 +27,12 @@ export function money(cents, opts = {}) {
   else num = (opts.signed ? nfSigned : nf).format(value);
   num = num.replace('-', '−');
   if (opts.bare) return num;
-  return `${num} ${opts.noSymbol ? '' : currencySymbol()}`.trim();
+  const sym = currencySymbol();
+  if (PREFIX.has(CURRENCY)) {
+    // «−$1 200»: знак минуса остаётся перед символом
+    return num.startsWith('−') ? `−${sym}${num.slice(1)}` : `${sym}${num}`;
+  }
+  return `${num} ${sym}`.trim();
 }
 
 /** Число для поля ввода. */

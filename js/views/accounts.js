@@ -24,9 +24,10 @@ function monthStats(state, accountId) {
 }
 
 export function renderAccounts({ state, derived }) {
-  const active = derived.accounts.filter((a) => !a.archived);
-  const archived = derived.accounts.filter((a) => a.archived);
-  const crypto = derived.accounts.find((a) => a.isCrypto);
+  const hideCrypto = Boolean(state.settings.hideCrypto);
+  const active = derived.accounts.filter((a) => !a.archived && !(hideCrypto && a.isCrypto));
+  const archived = derived.accounts.filter((a) => a.archived && !(hideCrypto && a.isCrypto));
+  const crypto = hideCrypto ? null : derived.accounts.find((a) => a.isCrypto);
 
   return `<div class="page">
     <section class="card card--summary">
@@ -35,14 +36,18 @@ export function renderAccounts({ state, derived }) {
           <span class="summary-line__label">Деньги на карте и в наличных</span>
           <b class="summary-line__value">${escapeHtml(money(derived.fiatTotal))}</b>
         </div>
-        <div class="summary-line__crypto">
+        ${
+          hideCrypto
+            ? ''
+            : `<div class="summary-line__crypto">
           <span>Криптовалюта</span>
           <b>${escapeHtml(money(derived.cryptoValue))}</b>
-        </div>
+        </div>`
+        }
       </div>
       <div class="summary-line__foot">
-        <span>Всего с криптой</span>
-        <b>${escapeHtml(money(derived.total))}</b>
+        <span>${hideCrypto ? 'Всего' : 'Всего с криптой'}</span>
+        <b>${escapeHtml(money(hideCrypto ? derived.fiatTotal : derived.total))}</b>
       </div>
     </section>
 
@@ -159,10 +164,10 @@ function renderCryptoAccount({ state, derived, acc }) {
       <div class="acc-detail__balance">${escapeHtml(money(acc.balance))}</div>
       <p class="card__hint">Стоимость считается по курсу, который вы указали вручную. Курсы не загружаются автоматически и не требуют платных сервисов.</p>
       <div class="acc-actions">
+        <button class="quick-act" data-act="add-preset" data-type="crypto_buy">${icon('in', 16)}Доход</button>
+        <button class="quick-act" data-act="add-preset" data-type="crypto_spend">${icon('out', 16)}Расход</button>
+        <button class="quick-act" data-act="add-preset" data-type="adjustment">${icon('swap', 16)}Корректировка</button>
         <button class="quick-act" data-act="asset-new">${icon('plus', 16)}Актив</button>
-        <button class="quick-act" data-act="add-preset" data-type="crypto_buy">${icon('in', 16)}Купить</button>
-        <button class="quick-act" data-act="add-preset" data-type="crypto_sell">${icon('out', 16)}Продать</button>
-        <button class="quick-act" data-act="add-preset" data-type="crypto_spend">${icon('coins', 16)}Потратить</button>
       </div>
     </section>
 

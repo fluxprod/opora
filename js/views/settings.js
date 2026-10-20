@@ -7,15 +7,9 @@ import { TYPE, BUILD } from '../core.js';
 import { toggleDiag } from '../diag.js';
 
 const CURRENCIES = [
+  { code: 'BYN', label: 'Белорусский рубль', symbol: 'Br' },
   { code: 'RUB', label: 'Российский рубль', symbol: '₽' },
   { code: 'USD', label: 'Доллар США', symbol: '$' },
-  { code: 'EUR', label: 'Евро', symbol: '€' },
-  { code: 'KZT', label: 'Казахстанский тенге', symbol: '₸' },
-  { code: 'BYN', label: 'Белорусский рубль', symbol: 'Br' },
-  { code: 'GEL', label: 'Грузинский лари', symbol: '₾' },
-  { code: 'UAH', label: 'Украинская гривна', symbol: '₴' },
-  { code: 'TRY', label: 'Турецкая лира', symbol: '₺' },
-  { code: 'AMD', label: 'Армянский драм', symbol: '֏' },
 ];
 
 export function storageSize() {
@@ -56,6 +50,12 @@ export function renderSettings({ state }) {
             <button class="seg__item ${state.settings.balanceView === 'total' ? 'is-active' : ''}" role="radio" aria-checked="${state.settings.balanceView === 'total'}" data-view="total">С криптой</button>
           </div>
         </div>
+        <label class="switch">
+          <input type="checkbox" data-hide-crypto ${state.settings.hideCrypto ? 'checked' : ''} />
+          <span class="switch__track"><span class="switch__dot"></span></span>
+          <span class="switch__text">Скрыть криптовалюту</span>
+        </label>
+        <p class="hint">Убирает криптосчёт, его стоимость и переключатель «С криптой» из главной и счетов. Операции и активы остаются на месте — вернуть можно здесь же.</p>
       </div>
     </section>
 
@@ -212,6 +212,11 @@ export function mountSettings(root) {
       store.updateSettings({ balanceView: btn.getAttribute('data-view') });
     }),
   );
+
+  root.querySelector('[data-hide-crypto]')?.addEventListener('change', (e) => {
+    store.updateSettings({ hideCrypto: e.target.checked });
+    toast(e.target.checked ? 'Криптовалюта скрыта' : 'Криптовалюта снова видна');
+  });
 
   root.querySelectorAll('[data-cat-tax]').forEach((input) =>
     input.addEventListener('change', () => {

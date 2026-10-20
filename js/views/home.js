@@ -5,7 +5,10 @@ import { balanceSeries, summarize, monthKey, isoToday, monthRange, addMonths } f
 import { chartAttr } from '../charts.js';
 
 export function renderHome({ state, derived }) {
-  const view = state.settings.balanceView === 'total' ? 'total' : 'fiat';
+  // «Скрыть крипту»: главная должна выглядеть так, будто крипты нет вообще —
+  // ни переключателя, ни карточки счёта, ни строки в балансе
+  const hideCrypto = Boolean(state.settings.hideCrypto);
+  const view = !hideCrypto && state.settings.balanceView === 'total' ? 'total' : 'fiat';
   const main = view === 'total' ? derived.total : derived.fiatTotal;
 
   const from = new Date();
@@ -21,7 +24,7 @@ export function renderHome({ state, derived }) {
   const isEmpty = state.transactions.length === 0;
 
   const fiatAccounts = derived.accounts.filter((a) => !a.isCrypto && !a.archived);
-  const cryptoAcc = derived.accounts.find((a) => a.isCrypto);
+  const cryptoAcc = hideCrypto ? null : derived.accounts.find((a) => a.isCrypto);
 
   // изменение денег за 30 дней: одинаково верно для обоих режимов баланса,
   // потому что стоимость крипты в этом окне считается неизменной
@@ -34,10 +37,14 @@ export function renderHome({ state, derived }) {
       <div class="hero__glow" aria-hidden="true"></div>
       <header class="hero__head">
         <span class="hero__eyebrow">Всего денег</span>
-        <div class="seg seg--sm" role="tablist">
+        ${
+          hideCrypto
+            ? ''
+            : `<div class="seg seg--sm" role="tablist">
           <button class="seg__item ${view === 'fiat' ? 'is-active' : ''}" data-act="set-view" data-view="fiat" role="tab" aria-selected="${view === 'fiat'}">Без крипты</button>
           <button class="seg__item ${view === 'total' ? 'is-active' : ''}" data-act="set-view" data-view="total" role="tab" aria-selected="${view === 'total'}">С криптой</button>
-        </div>
+        </div>`
+        }
       </header>
 
       <div class="hero__amount">${heroAmount(main)}</div>
@@ -60,7 +67,7 @@ export function renderHome({ state, derived }) {
           <b>${escapeHtml(money(derived.tax.reserveAvailable))}</b>
         </div>
         ${
-          derived.cryptoValue > 0
+          !hideCrypto && derived.cryptoValue > 0
             ? `<div class="hero__stat">
                 <span>Крипта</span>
                 <b>${escapeHtml(money(derived.cryptoValue))}</b>

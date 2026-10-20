@@ -30,6 +30,7 @@ export function createDefaultState() {
       currency: 'BYN',
       locale: 'ru-RU',
       balanceView: 'fiat', // 'fiat' | 'total'
+      hideCrypto: false, // спрятать криптовалюту из интерфейса целиком
       autoReserve: true,
       taxEnabled: true,
       taxRate: 10,
