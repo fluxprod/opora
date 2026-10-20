@@ -3,7 +3,7 @@ import { store } from './store.js';
 import { computeState, TYPE } from './core.js';
 import { money, icon, setCurrency, toast, openSheet, closeLayer, escapeHtml, getLockedScroll } from './ui.js';
 import { initDiag, diagTick } from './diag.js';
-import { initTelegram, syncTelegramBack, haptic } from './tg.js';
+import { initTelegram, syncTelegramBack, haptic, cloudAvailable, cloudSave, cloudLoad } from './tg.js';
 import { mountCharts } from './charts.js';
 import { openTxForm, openTxDetail } from './txform.js';
 import { renderHome } from './views/home.js';
@@ -404,6 +404,43 @@ function onSearchInput(e) {
 
 let resizeTimer = null;
 
+/* ─────────── резерв в облаке Телеграма ─────────── */
+
+const cloud = { timer: 0, busy: false, savedAt: null };
+
+/** Автосохранение снимка в CloudStorage: локальный кеш можно потерять, облако — нет. */
+function cloudMirror(delay = 1500) {
+  if (!cloudAvailable()) return;
+  clearTimeout(cloud.timer);
+  cloud.timer = setTimeout(async () => {
+    if (cloud.busy) return;
+    cloud.busy = true;
+    const ok = await cloudSave(store.exportJSON());
+    cloud.busy = false;
+    if (ok) {
+      cloud.savedAt = new Date();
+      document.dispatchEvent(new CustomEvent('opora:cloud-saved', { detail: cloud.savedAt }));
+    }
+  }, delay);
+}
+
+/** На старте: если локально пусто — поднять снимок из облака. */
+async function cloudBootstrap() {
+  if (!cloudAvailable()) return;
+  if (store.get().transactions.length === 0) {
+    const snap = await cloudLoad();
+    if (snap && snap.text) {
+      try {
+        store.importJSON(snap.text);
+        toast('Данные подняты из облака Телеграма');
+      } catch {
+        /* битый снимок — просто продолжаем с пустым состоянием */
+      }
+    }
+  }
+  cloudMirror(800);
+}
+
 function boot() {
   // Внутри Телеграма — сразу, до первой раскладки: высота и safe-area приходят
   // от мессенджера числами, поэтому оболочке не нужно угадывать их через dvh.
@@ -433,7 +470,10 @@ function boot() {
       diagTick();
     }, 180);
   });
-  store.subscribe(() => render());
+  store.subscribe(() => {
+    render();
+    cloudMirror();
+  });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeLayer();
     if (e.key.toLowerCase() === 'n' && !/input|select|textarea/i.test(document.activeElement?.tagName || '') && !document.querySelector('.layer')) {
@@ -443,6 +483,9 @@ function boot() {
 
   // ?diag=1 — оверлей с замерами для проверки на реальном устройстве
   initDiag();
+
+  // облачный резерв: поднять данные, если локальное хранилище пустое
+  void cloudBootstrap();
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

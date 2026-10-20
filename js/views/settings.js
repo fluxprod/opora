@@ -5,6 +5,7 @@ import { store } from '../store.js';
 import { makeId } from '../schema.js';
 import { TYPE, BUILD } from '../core.js';
 import { toggleDiag } from '../diag.js';
+import { cloudAvailable, cloudLoad } from '../tg.js';
 
 const CURRENCIES = [
   { code: 'BYN', label: 'Белорусский рубль', symbol: 'Br' },
@@ -145,9 +146,17 @@ export function renderSettings({ state }) {
           </div>
         </div>
         <p class="hint">Синхронизации между устройствами нет. Чтобы не потерять данные, делайте резервную копию: каждая копия — файл JSON со всеми счетами, операциями и настройками.</p>
+        <div class="data-row">
+          <div>
+            <b>Облако Телеграма</b>
+            <span class="muted" data-cloud-status>${cloudAvailable() ? 'Копия сохраняется автоматически при каждом изменении. Не пропадает при очистке кеша.' : 'Доступно только в мини-приложении Телеграма.'}</span>
+          </div>
+          ${cloudAvailable() ? `<button class="btn btn--soft" data-cloud-restore>${icon('download', 16)}Из облака</button>` : ''}
+        </div>
         <div class="data-actions">
           <button class="btn btn--soft" data-export>${icon('download', 16)}Скачать копию</button>
           <button class="btn btn--soft" data-import>${icon('upload', 16)}Восстановить</button>
+          <button class="btn btn--soft" data-import-text>${icon('copy', 16)}Вставить копию</button>
         </div>
         <input type="file" accept="application/json,.json" data-import-file hidden />
         <div class="data-danger">
@@ -228,7 +237,57 @@ export function mountSettings(root) {
   );
 
   root.querySelector('[data-export]')?.addEventListener('click', exportData);
+  root.querySelector('[data-cloud-restore]')?.addEventListener('click', async () => {
+    const snap = await cloudLoad();
+    if (!snap || !snap.text) return toast('В облаке пока нет копии', 'error');
+    const when = snap.savedAt ? new Date(snap.savedAt).toLocaleString('ru-RU') : '';
+    const ok = await confirmAction({
+      title: 'Взять копию из облака?',
+      text: `Копия сохранена ${when}. Текущие данные на устройстве будут заменены.`,
+      confirmLabel: 'Восстановить',
+    });
+    if (!ok) return;
+    try {
+      store.importJSON(snap.text);
+      toast('Данные восстановлены из облака');
+    } catch (err) {
+      toast(err.message || 'Не удалось прочитать копию', 'error');
+    }
+  });
   root.querySelector('[data-import]')?.addEventListener('click', () => root.querySelector('[data-import-file]').click());
+  // Восстановление из текста: на iPhone файл из Телеграма скачать нельзя,
+  // а скопировать JSON и вставить в поле — можно
+  root.querySelector('[data-import-text]')?.addEventListener('click', () => {
+    const sheet = openSheet({
+      title: 'Вставить копию',
+      subtitle: 'Скопируйте JSON из резервной копии',
+      body: `<div class="form">
+        <label class="field"><span class="field__label">Содержимое копии</span>
+          <textarea class="input diag__dump" data-import-area placeholder='{"app":"opora","state":{...}}' style="height:180px"></textarea>
+          <span class="field__hint">Можно вставить как весь файл, так и строку вида {"app":"opora","state":{...}}.</span>
+        </label>
+      </div>`,
+      footer: `<button class="btn btn--primary btn--block" data-import-run>Восстановить</button>`,
+    });
+    sheet.querySelector('[data-import-run]').addEventListener('click', async () => {
+      const text = sheet.querySelector('[data-import-area]').value.trim();
+      if (!text) return toast('Вставьте текст копии', 'error');
+      const ok = await confirmAction({
+        title: 'Заменить данные?',
+        text: 'Текущие операции и настройки будут заменены содержимым копии.',
+        confirmLabel: 'Восстановить',
+        danger: true,
+      });
+      if (!ok) return;
+      try {
+        store.importJSON(text);
+        closeLayer();
+        toast('Данные восстановлены из копии');
+      } catch (err) {
+        toast(err.message || 'Не удалось прочитать копию', 'error');
+      }
+    });
+  });
   root.querySelector('[data-import-file]')?.addEventListener('change', async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
